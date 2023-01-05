@@ -41,6 +41,7 @@ int main(int, char**)
 	const uintptr_t local_player = SearchInProcessMemory(h_process, pb_pattern_pp, mask) + 0x33;
 	const uintptr_t link_crawl = local_player - 0x33 + 0x250B;
 	const uintptr_t link_on_epona = local_player - 0x33 + 0x131;
+	const uintptr_t link_climb = local_player - 0x33 + 0x2B1;
 	printf("[+] Found LocalPlayer @ 0x%X\n", static_cast<unsigned>(local_player));
 	const uintptr_t local_camera = SearchInProcessMemory(h_process, pb_pattern_pc, mask) + 0xB6;
 	const uintptr_t look_at_camera = local_camera - 0xB6 + 0x60;
@@ -62,6 +63,7 @@ int main(int, char**)
 	constexpr uint16_t look_link = 60;
 	uint16_t crawl_link = 11012;
 	uint16_t epona_link = 0;
+	uint16_t climb_link = 0;
 
 	float joystick_x = 0.0f;
 	float joystick_y = 0.0f;
@@ -127,14 +129,15 @@ int main(int, char**)
 
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl), &crawl_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_on_epona), &epona_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_climb), &climb_link, sizeof(uint16_t), nullptr);
 
-		if (epona_link == 2448 || crawl_link == 21012)
+		if (epona_link == 2448 || crawl_link == 21012 || climb_link == 143)
 		{
 			reset_angle = true;
 			pause = true;
 		}
 
-		if (!pause && crawl_link != 21012 && epona_link != 2448)
+		if (!pause)
 		{
 			constexpr float lenght_base = 250.0f;
 			WriteProcessMemory(h_process, reinterpret_cast<void*>(look_at_camera), &look_link, sizeof(uint16_t), nullptr);

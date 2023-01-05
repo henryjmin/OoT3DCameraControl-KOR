@@ -69,6 +69,13 @@ unregistersymbol(_base)
           <VariableType>2 Bytes</VariableType>
           <Address>_base+131</Address>
         </CheatEntry>
+        <CheatEntry>
+          <ID>439</ID>
+          <Description>"LinkClimb"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>2 Bytes</VariableType>
+          <Address>_base+2B1</Address>
+        </CheatEntry>
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
