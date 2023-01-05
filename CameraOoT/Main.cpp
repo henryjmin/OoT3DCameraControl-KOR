@@ -5,7 +5,7 @@
 #include "Time.h"
 
 #define PI 3.14159265359f
-#define DEAD_ZONE_STICK 0.40f // Max 1.0f
+#define DEAD_ZONE_STICK 0.20f // Max 1.0f
 #define X_ANGLE_SPEED 150.0f  // Degree Second
 #define Y_ANGLE_SPEED 200.0f  // ~Degree Second
 
