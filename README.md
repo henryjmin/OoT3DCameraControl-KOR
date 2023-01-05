@@ -9,3 +9,5 @@ It supports any controller supported by SDL:
 - The L button resets the angle of the camera, and toggles off the free camera.
 
 Open citra-qt.exe and start the game, run the CameraOoT.exe once you can control Link.
+
+TODO: Find the memory addresses for Epona's coordinates and allow free camera control when riding Epona.
