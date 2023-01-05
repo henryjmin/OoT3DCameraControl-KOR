@@ -10,6 +10,6 @@ It supports any controller supported by SDL:
 
 Open citra-qt.exe and start the game, run the CameraOoT.exe once you can control Link.
 
-TODO: Find the memory addresses for Epona's coordinates (?), and allow free camera control when riding Epona.
-TODO: Add a config file to change the inverted cameras, sensitivity and reset camera button.
-TODO: Check whether the jitter of the free camera can be further mitigated.
+TODO: Find the memory addresses for Epona's coordinates (?), and allow free camera control when riding Epona.  
+TODO: Add a config file to change the inverted cameras, sensitivity and reset camera button.  
+TODO: Check whether the jitter of the free camera can be further mitigated.  
