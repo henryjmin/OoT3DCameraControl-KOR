@@ -7,7 +7,7 @@
 #define PI 3.14159265359f
 #define DEAD_ZONE_STICK 0.20f // Max 1.0f
 #define X_ANGLE_SPEED 150.0f  // Degree Second
-#define Y_ANGLE_SPEED 200.0f  // ~Degree Second
+#define Y_ANGLE_SPEED 300.0f  // ~Degree Second
 
 using namespace std;
 
@@ -60,12 +60,12 @@ int main(int, char**)
 	time.StartTime();
 	float dx, dz, dy;
 	constexpr uint16_t look_link = 60;
-	uint16_t sneek_link = 11012;
+	uint16_t crawl_link = 11012;
 	uint16_t epona_link = 0;
 
 	float joystick_x = 0.0f;
 	float joystick_y = 0.0f;
-	bool resetangle = true;
+	bool reset_angle = true;
 	bool pause = true;
 
 	while (true)
@@ -90,7 +90,7 @@ int main(int, char**)
 			case SDL_CONTROLLERBUTTONDOWN:
 				if (event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER)
 				{
-					resetangle = true;
+					reset_angle = true;
 					pause = true;
 				}
 				break;
@@ -125,16 +125,16 @@ int main(int, char**)
 			}
 		}
 
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl), &sneek_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl), &crawl_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_on_epona), &epona_link, sizeof(uint16_t), nullptr);
 
-		if (epona_link == 2448 || sneek_link == 21012)
+		if (epona_link == 2448 || crawl_link == 21012)
 		{
-			resetangle = true;
+			reset_angle = true;
 			pause = true;
 		}
 
-		if (!pause && sneek_link != 21012 && epona_link != 2448)
+		if (!pause && crawl_link != 21012 && epona_link != 2448)
 		{
 			constexpr float lenght_base = 250.0f;
 			WriteProcessMemory(h_process, reinterpret_cast<void*>(look_at_camera), &look_link, sizeof(uint16_t), nullptr);
@@ -142,9 +142,9 @@ int main(int, char**)
 			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player + 0x04), &y, sizeof(float), nullptr);
 			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player + 0x08), &z, sizeof(float), nullptr);
 
-			if (resetangle)
+			if (reset_angle)
 			{
-				resetangle = false;
+				reset_angle = false;
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x04), &dy, sizeof(float), nullptr);
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x08), &dz, sizeof(float), nullptr);
@@ -185,7 +185,7 @@ int main(int, char**)
 			dy = base_height + y;
 			dz = (sin(theta) * lenght_base) + z;
 
-			if (!resetangle)
+			if (!reset_angle)
 			{
 				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
 				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x04), &dy, sizeof(float), nullptr);
