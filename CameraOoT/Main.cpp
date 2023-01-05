@@ -128,6 +128,12 @@ int main(int, char**)
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl), &sneek_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_on_epona), &epona_link, sizeof(uint16_t), nullptr);
 
+		if (epona_link == 2448 || sneek_link == 21012)
+		{
+			resetangle = true;
+			pause = true;
+		}
+
 		if (!pause && sneek_link != 21012 && epona_link != 2448)
 		{
 			constexpr float lenght_base = 250.0f;
