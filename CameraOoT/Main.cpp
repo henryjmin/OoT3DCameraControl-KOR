@@ -7,7 +7,7 @@
 #define PI 3.14159265359f
 #define DEAD_ZONE_STICK 0.20f // Max 1.0f
 #define X_ANGLE_SPEED 150.0f  // Degree Second
-#define Y_ANGLE_SPEED 300.0f  // ~Degree Second
+#define Y_ANGLE_SPEED (-300.0f)  // ~Degree Second
 
 using namespace std;
 
@@ -174,9 +174,9 @@ int main(int, char**)
 			}
 
 			base_height -= time.GetFixedDeltaTime() * joystick_y * Y_ANGLE_SPEED;
-			if (base_height > 175.0f)
+			if (base_height > 360.0f)
 			{
-				base_height = 175.0f;
+				base_height = 360.0f;
 			}
 			else if (base_height < 0.0f)
 			{
