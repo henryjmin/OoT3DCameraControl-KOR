@@ -11,14 +11,10 @@
 
 using namespace std;
 
-void ClearConsole()
-{
-	std::cout << "\x1B[2J\x1B[H";
-}
-
 int main(int, char**)
 {
 	SetConsoleTitle(L"OoT Camera");
+
 	const DWORD proc_id = GetProcId(L"citra-qt.exe");
 	if (proc_id == 0)
 	{
@@ -49,6 +45,7 @@ int main(int, char**)
 	const uintptr_t local_camera = SearchInProcessMemory(h_process, pb_pattern_pc, mask) + 0xB6;
 	const uintptr_t look_at_camera = local_camera - 0xB6 + 0x60;
 	printf("[+] Found LocalCamera @ 0x%X\n", static_cast<unsigned>(local_camera));
+
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;
@@ -66,55 +63,71 @@ int main(int, char**)
 	uint16_t sneek_link = 11012;
 	uint16_t epona_link = 0;
 
+	float joystick_x = 0.0f;
+	float joystick_y = 0.0f;
 	bool resetangle = true;
-	bool pause = false;
-	bool pause_pressed = false;
+	bool pause = true;
+
 	while (true)
 	{
 		time.FixedUpdateTime();
+
 		while (SDL_PollEvent(&event))
 		{
-			if (event.type == SDL_CONTROLLERDEVICEADDED)
+			switch (event.type)
 			{
+			case SDL_CONTROLLERDEVICEADDED:
 				controller = SDL_GameControllerOpen(event.cdevice.which);
 				if (controller)
 				{
 					std::cout << "[+] Controller " << event.cdevice.which << " is connected" << std::endl;
 				}
-			}
-			else if (event.type == SDL_CONTROLLERDEVICEREMOVED)
-			{
+				break;
+			case SDL_CONTROLLERDEVICEREMOVED:
 				SDL_GameControllerClose(controller);
 				std::cout << "[X] Controller " << event.cdevice.which << " is not connected" << std::endl;
+				break;
+			case SDL_CONTROLLERBUTTONDOWN:
+				if (event.cbutton.button == SDL_CONTROLLER_BUTTON_LEFTSHOULDER)
+				{
+					resetangle = true;
+					pause = true;
+				}
+				break;
+			case SDL_CONTROLLERAXISMOTION:
+				if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTX)
+				{
+					joystick_x = event.caxis.value / 32767.0f;
+					if (joystick_x < DEAD_ZONE_STICK && joystick_x > -DEAD_ZONE_STICK)
+					{
+						joystick_x = 0.0f;
+					}
+					else
+					{
+						pause = false;
+					}
+				}
+				else if (event.caxis.axis == SDL_CONTROLLER_AXIS_RIGHTY)
+				{
+					joystick_y = event.caxis.value / 32767.0f;
+					if (joystick_y < DEAD_ZONE_STICK && joystick_y > -DEAD_ZONE_STICK)
+					{
+						joystick_y = 0.0f;
+					}
+					else
+					{
+						pause = false;
+					}
+				}
+				break;
+			default:
+				break;
 			}
 		}
 
-		SDL_GameControllerUpdate();
-		if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) == 1)
-		{
-			pause_pressed = true;
-		}
-		else if (pause_pressed)
-		{
-			pause_pressed = false;
-			pause = !pause;
-			resetangle = true;
-			ClearConsole();
-			if (pause)
-			{
-				system("Color 0C");
-				std::cout << "[PAUSE]" << std::endl;
-			}
-			else
-			{
-				system("Color 0A");
-				std::cout << "[ACTIVE]" << std::endl;
-			}
-			system("Color 00");
-			std::cout << " " << std::endl;
-		}
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl), &sneek_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_on_epona), &epona_link, sizeof(uint16_t), nullptr);
+
 		if (!pause && sneek_link != 21012 && epona_link != 2448)
 		{
 			constexpr float lenght_base = 250.0f;
@@ -122,11 +135,8 @@ int main(int, char**)
 			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player), &x, sizeof(float), nullptr);
 			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player + 0x04), &y, sizeof(float), nullptr);
 			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player + 0x08), &z, sizeof(float), nullptr);
-			if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER) == 1)
-			{
-				resetangle = true;
-			}
-			else if (resetangle)
+
+			if (resetangle)
 			{
 				resetangle = false;
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
@@ -138,21 +148,12 @@ int main(int, char**)
 				{
 					base_angle += 360.0f;
 				}
-				if (base_angle > 180.0f)
+				else if (base_angle > 180.0f)
 				{
 					base_angle -= 360.0f;
 				}
 			}
-			float joystick_x = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX) / 32767.0f;
-			if (joystick_x < DEAD_ZONE_STICK && joystick_x > -DEAD_ZONE_STICK)
-			{
-				joystick_x = 0.0f;
-			}
-			float joystick_y = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY) / 32767.0f;
-			if (joystick_y < DEAD_ZONE_STICK && joystick_y > -DEAD_ZONE_STICK)
-			{
-				joystick_y = 0.0f;
-			}
+
 			base_angle += time.GetFixedDeltaTime() * joystick_x * X_ANGLE_SPEED;
 			if (base_angle > 180.0f)
 			{
@@ -162,19 +163,22 @@ int main(int, char**)
 			{
 				base_angle = 179.9999999f;
 			}
+
 			base_height -= time.GetFixedDeltaTime() * joystick_y * Y_ANGLE_SPEED;
 			if (base_height > 175.0f)
 			{
 				base_height = 175.0f;
 			}
-			if (base_height < 0.0f)
+			else if (base_height < 0.0f)
 			{
 				base_height = 0.0f;
 			}
+
 			const float theta = base_angle * PI / 180.0f;
 			dx = (cos(theta) * lenght_base) + x;
 			dy = base_height + y;
 			dz = (sin(theta) * lenght_base) + z;
+
 			if (!resetangle)
 			{
 				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
