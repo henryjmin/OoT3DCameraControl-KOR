@@ -12,3 +12,4 @@ Open citra-qt.exe and start the game, run the CameraOoT.exe once you can control
 
 TODO: Find the memory addresses for Epona's coordinates (?), and allow free camera control when riding Epona.  
 TODO: Check whether the jitter of the free camera can be further mitigated.  
+TODO: Modify the camera function to zoom it further out when the Y coordinate increases.
