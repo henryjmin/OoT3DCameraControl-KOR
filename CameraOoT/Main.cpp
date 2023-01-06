@@ -6,8 +6,8 @@
 
 #define PI 3.14159265359f
 #define DEAD_ZONE_STICK 0.20f // Max 1.0f
-#define X_ANGLE_SPEED 150.0f  // Degree Second
-#define Y_ANGLE_SPEED (-300.0f)  // ~Degree Second
+#define X_ANGLE_SPEED 150.0f
+#define Y_ANGLE_SPEED 300.0f
 
 using namespace std;
 
@@ -188,14 +188,14 @@ int main(int, char**)
 				base_angle = 179.9999999f;
 			}
 
-			base_height -= time.GetFixedDeltaTime() * joystick_y * Y_ANGLE_SPEED;
+			base_height += time.GetFixedDeltaTime() * joystick_y * Y_ANGLE_SPEED;
 			if (base_height > 360.0f)
 			{
 				base_height = 360.0f;
 			}
-			else if (base_height < 0.0f)
+			else if (base_height < -180.0f)
 			{
-				base_height = 0.0f;
+				base_height = -180.0f;
 			}
 
 			const float theta = base_angle * PI / 180.0f;
