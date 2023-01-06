@@ -336,11 +336,11 @@ int main(int, char**)
 			base_angle += time.GetFixedDeltaTime() * joystick_x * x_speed * invert_x;
 			if (base_angle > 180.0f)
 			{
-				base_angle = -179.999999f;
+				base_angle -= 360.0f;
 			}
 			else if (base_angle < -180.0f)
 			{
-				base_angle = 179.9999999f;
+				base_angle += 360.0f;
 			}
 
 			base_height += time.GetFixedDeltaTime() * joystick_y * y_speed * invert_y;
