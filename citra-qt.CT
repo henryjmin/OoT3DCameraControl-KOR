@@ -83,6 +83,13 @@ unregistersymbol(_base)
           <VariableType>2 Bytes</VariableType>
           <Address>_base+C1</Address>
         </CheatEntry>
+        <CheatEntry>
+          <ID>441</ID>
+          <Description>"LinkFixed"</Description>
+          <ShowAsSigned>0</ShowAsSigned>
+          <VariableType>2 Bytes</VariableType>
+          <Address>_base+89</Address>
+        </CheatEntry>
       </CheatEntries>
     </CheatEntry>
     <CheatEntry>
