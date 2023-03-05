@@ -197,6 +197,7 @@ int main(int, char**)
 	printf("[+] Found LocalPlayer @ 0x%X\n", static_cast<unsigned>(local_player));
 	const uintptr_t local_camera = SearchInProcessMemory(h_process, pb_pattern_pc, mask) + 0xB6;
 	const uintptr_t look_at_camera = local_camera - 0xB6 + 0x60;
+	const uintptr_t camera_locked = local_camera - 0xB6 + 0x1E;
 	printf("[+] Found LocalCamera @ 0x%X\n", static_cast<unsigned>(local_camera));
 
 	float x = 0.0f;
@@ -218,6 +219,8 @@ int main(int, char**)
 	uint16_t climb_link = 0;
 	uint16_t ocarina_link = 2098;
 	uint16_t fixed_link = 2178;
+
+	uint16_t locked_camera = 1;
 
 	float joystick_x = 0.0f;
 	float joystick_y = 0.0f;
@@ -292,6 +295,7 @@ int main(int, char**)
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_climb), &climb_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_ocarina), &ocarina_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_fixed), &fixed_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(camera_locked), &locked_camera, sizeof(uint16_t), nullptr);
 
 		if (ocarina_link == 2303 && !is_ocarina)
 		{
@@ -304,7 +308,7 @@ int main(int, char**)
 			is_ocarina = false;
 		}
 
-		if (epona_link == 2448 || crawl_link == 21012 || climb_link == 143 || fixed_link == 2457)
+		if (epona_link == 2448 || crawl_link == 21012 || climb_link == 143 || fixed_link == 2457 || locked_camera == 1)
 		{
 			reset_angle = true;
 			pause = true;
