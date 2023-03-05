@@ -324,6 +324,7 @@ int main(int, char**)
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x04), &dy, sizeof(float), nullptr);
 				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x08), &dz, sizeof(float), nullptr);
+
 				base_angle = atan2(x - dx, z - dz) * -180.0f / numbers::pi_v<float>;
 				base_angle -= 90.0f;
 				if (base_angle < -180.0f)
@@ -333,6 +334,16 @@ int main(int, char**)
 				else if (base_angle > 180.0f)
 				{
 					base_angle -= 360.0f;
+				}
+
+				base_height = dy - y;
+				if (base_height > 360.0f)
+				{
+					base_height = 360.0f;
+				}
+				else if (base_height < -180.0f)
+				{
+					base_height = -180.0f;
 				}
 			}
 
