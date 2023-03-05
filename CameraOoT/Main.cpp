@@ -188,17 +188,17 @@ int main(int, char**)
 	const uint8_t pb_pattern_pc[17] = {
 		0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x01 };
 	const auto mask = "xxxxxxxxxxxxxxxx";
-	const uintptr_t local_player = SearchInProcessMemory(h_process, pb_pattern_pp, mask) + 0x33;
-	const uintptr_t link_crawl = local_player - 0x33 + 0x250B;
-	const uintptr_t link_on_epona = local_player - 0x33 + 0x131;
-	const uintptr_t link_climb = local_player - 0x33 + 0x2B1;
-	const uintptr_t link_ocarina = local_player - 0x33 + 0xC1;
-	const uintptr_t link_fixed = local_player - 0x33 + 0x89;
-	printf("[+] Found LocalPlayer @ 0x%X\n", static_cast<unsigned>(local_player));
-	const uintptr_t local_camera = SearchInProcessMemory(h_process, pb_pattern_pc, mask) + 0xB6;
-	const uintptr_t look_at_camera = local_camera - 0xB6 + 0x60;
-	const uintptr_t camera_locked = local_camera - 0xB6 + 0x1E;
-	printf("[+] Found LocalCamera @ 0x%X\n", static_cast<unsigned>(local_camera));
+	const uintptr_t local_player_addr = SearchInProcessMemory(h_process, pb_pattern_pp, mask) + 0x33;
+	const uintptr_t link_crawl_addr = local_player_addr - 0x33 + 0x250B;
+	const uintptr_t link_on_epona_addr = local_player_addr - 0x33 + 0x131;
+	const uintptr_t link_climb_addr = local_player_addr - 0x33 + 0x2B1;
+	const uintptr_t link_ocarina_addr = local_player_addr - 0x33 + 0xC1;
+	const uintptr_t link_fixed_addr = local_player_addr - 0x33 + 0x89;
+	printf("[+] Found LocalPlayer @ 0x%X\n", static_cast<unsigned>(local_player_addr));
+	const uintptr_t local_camera_addr = SearchInProcessMemory(h_process, pb_pattern_pc, mask) + 0xB6;
+	const uintptr_t look_at_camera_addr = local_camera_addr - 0xB6 + 0x60;
+	const uintptr_t camera_locked_addr = local_camera_addr - 0xB6 + 0x1E;
+	printf("[+] Found LocalCamera @ 0x%X\n", static_cast<unsigned>(local_camera_addr));
 
 	float x = 0.0f;
 	float y = 0.0f;
@@ -290,12 +290,12 @@ int main(int, char**)
 			}
 		}
 
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl), &crawl_link, sizeof(uint16_t), nullptr);
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_on_epona), &epona_link, sizeof(uint16_t), nullptr);
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_climb), &climb_link, sizeof(uint16_t), nullptr);
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_ocarina), &ocarina_link, sizeof(uint16_t), nullptr);
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_fixed), &fixed_link, sizeof(uint16_t), nullptr);
-		ReadProcessMemory(h_process, reinterpret_cast<void*>(camera_locked), &locked_camera, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_crawl_addr), &crawl_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_on_epona_addr), &epona_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_climb_addr), &climb_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_ocarina_addr), &ocarina_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_fixed_addr), &fixed_link, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(camera_locked_addr), &locked_camera, sizeof(uint16_t), nullptr);
 
 		if (ocarina_link == 2303 && !is_ocarina)
 		{
@@ -317,17 +317,17 @@ int main(int, char**)
 		if (!pause)
 		{
 			constexpr float length_base = 250.0f;
-			WriteProcessMemory(h_process, reinterpret_cast<void*>(look_at_camera), &look_link, sizeof(uint16_t), nullptr);
-			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player), &x, sizeof(float), nullptr);
-			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player + 0x04), &y, sizeof(float), nullptr);
-			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player + 0x08), &z, sizeof(float), nullptr);
+			WriteProcessMemory(h_process, reinterpret_cast<void*>(look_at_camera_addr), &look_link, sizeof(uint16_t), nullptr);
+			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player_addr), &x, sizeof(float), nullptr);
+			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player_addr + 0x04), &y, sizeof(float), nullptr);
+			ReadProcessMemory(h_process, reinterpret_cast<void*>(local_player_addr + 0x08), &z, sizeof(float), nullptr);
 
 			if (reset_angle)
 			{
 				reset_angle = false;
-				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
-				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x04), &dy, sizeof(float), nullptr);
-				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x08), &dz, sizeof(float), nullptr);
+				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr), &dx, sizeof(float), nullptr);
+				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x04), &dy, sizeof(float), nullptr);
+				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x08), &dz, sizeof(float), nullptr);
 
 				base_angle = atan2(x - dx, z - dz) * -180.0f / numbers::pi_v<float>;
 				base_angle -= 90.0f;
@@ -378,9 +378,9 @@ int main(int, char**)
 
 			if (!reset_angle)
 			{
-				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera), &dx, sizeof(float), nullptr);
-				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x04), &dy, sizeof(float), nullptr);
-				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera + 0x08), &dz, sizeof(float), nullptr);
+				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr), &dx, sizeof(float), nullptr);
+				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x04), &dy, sizeof(float), nullptr);
+				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x08), &dz, sizeof(float), nullptr);
 			}
 		}
 	}
