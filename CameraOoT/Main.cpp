@@ -194,6 +194,7 @@ int main(int, char**)
 	const uintptr_t link_climb_addr = local_player_addr - 0x33 + 0x2B1;
 	const uintptr_t link_ocarina_addr = local_player_addr - 0x33 + 0xC1;
 	const uintptr_t link_fixed_addr = local_player_addr - 0x33 + 0x89;
+	const uintptr_t link_jump_addr = local_player_addr - 0x33 + 0x2289;
 	printf("[+] Found LocalPlayer @ 0x%X\n", static_cast<unsigned>(local_player_addr));
 	const uintptr_t local_camera_addr = SearchInProcessMemory(h_process, pb_pattern_pc, mask) + 0xB6;
 	const uintptr_t look_at_camera_addr = local_camera_addr - 0xB6 + 0x60;
@@ -215,6 +216,7 @@ int main(int, char**)
 	float dx, dz, dy;
 	constexpr uint16_t look_link = 60;
 	uint16_t crawl_link = 11012;
+	uint16_t jump_link = 0;
 	uint16_t epona_link = 0;
 	uint16_t climb_link = 0;
 	uint16_t ocarina_link = 2098;
@@ -296,6 +298,7 @@ int main(int, char**)
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_ocarina_addr), &ocarina_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_fixed_addr), &fixed_link, sizeof(uint16_t), nullptr);
 		ReadProcessMemory(h_process, reinterpret_cast<void*>(camera_locked_addr), &locked_camera, sizeof(uint16_t), nullptr);
+		ReadProcessMemory(h_process, reinterpret_cast<void*>(link_jump_addr), &jump_link, sizeof(uint16_t), nullptr);
 
 		if (ocarina_link == 2303 && !is_ocarina)
 		{
@@ -351,6 +354,7 @@ int main(int, char**)
 				}
 			}
 
+
 			base_angle += time.GetFixedDeltaTime() * joystick_x * x_speed * invert_x;
 			if (base_angle > 180.0f)
 			{
@@ -361,27 +365,42 @@ int main(int, char**)
 				base_angle += 360.0f;
 			}
 
-			base_height += time.GetFixedDeltaTime() * joystick_y * y_speed * invert_y;
-			if (base_height > 360.0f)
+			if (jump_link != 0)
 			{
-				base_height = 360.0f;
+				base_height += time.GetFixedDeltaTime() * joystick_y * y_speed * invert_y;
+				if (base_height > 360.0f)
+				{
+					base_height = 360.0f;
+				}
+				else if (base_height < -180.0f)
+				{
+					base_height = -180.0f;
+				}
 			}
-			else if (base_height < -180.0f)
+			else
 			{
-				base_height = -180.0f;
+				ReadProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x04), &dy, sizeof(float), nullptr);
+
+				base_height = dy - y;
+				if (base_height > 360.0f)
+				{
+					base_height = 360.0f;
+				}
+				else if (base_height < -180.0f)
+				{
+					base_height = -180.0f;
+				}
 			}
+
 
 			const float theta = base_angle * numbers::pi_v<float> / 180.0f;
 			dx = (cos(theta) * length_base) + x;
 			dy = base_height + y;
 			dz = (sin(theta) * length_base) + z;
 
-			if (!reset_angle)
-			{
-				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr), &dx, sizeof(float), nullptr);
-				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x04), &dy, sizeof(float), nullptr);
-				WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x08), &dz, sizeof(float), nullptr);
-			}
+			WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr), &dx, sizeof(float), nullptr);
+			WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x04), &dy, sizeof(float), nullptr);
+			WriteProcessMemory(h_process, reinterpret_cast<void*>(local_camera_addr + 0x08), &dz, sizeof(float), nullptr);
 		}
 	}
 }
